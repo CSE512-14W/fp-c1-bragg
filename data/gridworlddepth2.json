@@ -1,0 +1,470 @@
+{
+    "incomingProbability": "1.000000", 
+    "type": "state", 
+    "name": "(0, 0)", 
+    "value": "94.970353", 
+    "children": [
+        {
+            "type": "action", 
+            "name": "N", 
+            "value": "0", 
+            "children": [
+                {
+                    "incomingProbability": "0.800000", 
+                    "type": "state", 
+                    "name": "(0, 1)", 
+                    "value": "97.108936", 
+                    "children": [
+                        {
+                            "type": "action", 
+                            "name": "N", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 2)", 
+                                    "value": "98.205945"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "S", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "E", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 2)", 
+                                    "value": "98.205945"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }
+                    ]
+                }, 
+                {
+                    "incomingProbability": "0.100000", 
+                    "type": "state", 
+                    "name": "(1, 0)", 
+                    "value": "96.889632", 
+                    "children": [
+                        {
+                            "type": "action", 
+                            "name": "N", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(2, 0)", 
+                                    "value": "97.181517"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "E", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(2, 0)", 
+                                    "value": "97.181517"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "W", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }
+                    ]
+                }, 
+                {
+                    "incomingProbability": "0.100000", 
+                    "type": "state", 
+                    "name": "(0, 0)", 
+                    "value": "94.970353", 
+                    "children": [
+                        {
+                            "type": "action", 
+                            "name": "N", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "E", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }, 
+        {
+            "type": "action", 
+            "name": "E", 
+            "value": "0", 
+            "children": [
+                {
+                    "incomingProbability": "0.100000", 
+                    "type": "state", 
+                    "name": "(0, 1)", 
+                    "value": "97.108936", 
+                    "children": [
+                        {
+                            "type": "action", 
+                            "name": "N", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 2)", 
+                                    "value": "98.205945"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "S", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "E", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 2)", 
+                                    "value": "98.205945"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }
+                    ]
+                }, 
+                {
+                    "incomingProbability": "0.800000", 
+                    "type": "state", 
+                    "name": "(1, 0)", 
+                    "value": "96.889632", 
+                    "children": [
+                        {
+                            "type": "action", 
+                            "name": "N", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(2, 0)", 
+                                    "value": "97.181517"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "E", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(2, 0)", 
+                                    "value": "97.181517"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "W", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 1)", 
+                                    "value": "98.344809"
+                                }
+                            ]
+                        }
+                    ]
+                }, 
+                {
+                    "incomingProbability": "0.100000", 
+                    "type": "state", 
+                    "name": "(0, 0)", 
+                    "value": "94.970353", 
+                    "children": [
+                        {
+                            "type": "action", 
+                            "name": "N", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }
+                            ]
+                        }, 
+                        {
+                            "type": "action", 
+                            "name": "E", 
+                            "value": "0", 
+                            "children": [
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 1)", 
+                                    "value": "97.108936"
+                                }, 
+                                {
+                                    "incomingProbability": "0.800000", 
+                                    "type": "state", 
+                                    "name": "(1, 0)", 
+                                    "value": "96.889632"
+                                }, 
+                                {
+                                    "incomingProbability": "0.100000", 
+                                    "type": "state", 
+                                    "name": "(0, 0)", 
+                                    "value": "94.970353"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
