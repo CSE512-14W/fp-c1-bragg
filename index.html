@@ -54,6 +54,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+
 // d3.json("data/gridworld.json", function(error, flare) {
 d3.json("data/gridworlddepth2.json", function(error, data) {
   root = data;
@@ -123,10 +124,24 @@ function update(source) {
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
       .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .on("mouseover", function(d) {highlight(d.name); d3.selectAll("circle." + d.name) 
+					      .style("stroke", 
+						     function(d) {
+							 d._stroke = d.stroke; 
+							 return "black";})
+					      .style("stroke-width", 10);})
+      .on("mouseout", function (d)  {unhighlight(d.name); d3.selectAll("circle." + d.name) 
+					      .style("stroke", 
+						     function(d) {
+							 return "None";})
+					      .style("stroke-width", 3);})
+
+
       .on("click", click);
 
   nodeEnter.append("circle")
       .attr("r", 1e-6)
+      .attr("class", function (d) {return d.name})
       // .attr("r", function(d) { return (d.type == "action") ? 1e-6 : radius(d.prob) })
       .style("stroke", function(d) { return d._children ? "lightsteelblue" : "none"; })
       .style("stroke-width", 3)
@@ -220,4 +235,15 @@ function click(d) {
   update(d);
 }
 
+</script>
+
+<div class="rep" style="float:right">
+<script src="2drep.js"></script>
+<script>
+draw(width, height);
+</script>
+</div>
+
+<script>
+//draw(width, height);
 </script>

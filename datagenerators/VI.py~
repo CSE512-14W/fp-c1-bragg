@@ -1,0 +1,4 @@
+
+
+def runVI(mdp):
+    states = mdp.getStates()
