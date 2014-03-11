@@ -47,6 +47,25 @@ var treewidths = {action: 40, state: 180};
 var valRange =  {min: Infinity, max: -Infinity};
 
 var diagonal = d3.svg.diagonal()
+    .source( function(d) {
+             console.log("YOYO");
+             console.log(d);
+             if (d.target.type == "state") {
+               console.log("POO");
+               console.log(d.target.poo);
+               if (d.target.poo < 0) {
+		console.log("BEFORE"); console.log(d.source.x0); 
+                 return {x: d.source.x - radius(parseFloat(d.target.poo) * -1), y: d.source.y};
+                console.log("AFTER"); console.log(d.source.x0);
+               } else {
+		console.log("BEFORE"); console.log(d.source.x0);
+                 return {x: d.source.x + radius(parseFloat(d.target.poo)), y: d.source.y};
+                console.log("AFTER"); console.log(d.source.x0);
+
+		}
+             }
+             return d.source;
+             })
     .projection(function(d) { return [d.y, d.x]; });
 
  // Define the zoom function for the zoomable tree
@@ -100,9 +119,13 @@ d3.json("data/gridworlddepth5.json", function(error, data) {
       .domain([valRange.min, (valRange.max + valRange.min) / 2, valRange.max])
       .range(["red", "#F8F8F8", "green"]);
 
-  radius = d3.scale.sqrt()
+  //radius = d3.scale.sqrt()
+  //    .domain([0, 1])
+  //    .range([1,20]);
+
+  radius = d3.scale.linear()
       .domain([0, 1])
-      .range([1,20]);
+      .range([0,20]);
 
   // Display tree
   root.children.forEach(collapse);
@@ -152,13 +175,16 @@ function update(source) {
   nodeEnter.append("circle")
       .attr("r", 1e-6)
       .attr("class", function (d) {return d.name})
-      // .attr("r", function(d) { return (d.type == "action") ? 1e-6 : radius(d.prob) })
+      // .attr("r", function(d) { return (d.type == "action") ? 1e-6 : radius(d.prob / 2) })
+      // .attr("r", function(d) { return (d.type == "action") ? 1e-6 : radius(0.5) })
       //.style("stroke", function(d) { return d._children ? "lightsteelblue" : "none"; })
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
     .style("fill", function(d) { console.log(d.qvalue);console.log(color(d.qvalue)); return (d.type == "action") ? color(d.qvalue) : color(d.value); })
-      .style("fill-opacity", function(d) { return (d.type == "action") ? 1 : .3; })
+       //.style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
+       //.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
+      .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; })
     .append("svg:title")
       .text(function(d) { return d.value; });
 
@@ -176,13 +202,17 @@ function update(source) {
 
   nodeUpdate.select("circle")
       // .attr("r", 4.5)
-      .attr("r", function(d) { return (d.type == "action") ? radius(1.0) : radius(d.prob) })
+      .attr("r", function(d) { return (d.type == "action") ? radius(0.5) : radius(d.prob / 2) })
+      .attr("r", function(d) { return (d.type == "action") ? radius(0.5) : radius(0.5) })
       //.style("stroke", function(d) { return d._children ? "lightsteelblue" : "none"; })
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
     .style("fill", function(d) { return (d.type == "action") ? color(d.qvalue) : color(d.value); })
-      .style("fill-opacity", function(d) { return (d.type == "action") ? 1 : .3; });
+        //    .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
+	//.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
+
+      .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; });
 
   nodeUpdate.select("text")
       .style("fill-opacity", 1);
@@ -207,12 +237,18 @@ function update(source) {
   link.enter().insert("path", "g")
       .attr("class", "link")
       .attr("d", function(d) {
+        console.log("WHY");
+        console.log(source);
         var o = {x: source.x0, y: source.y0};
+        console.log("O");
+        console.log(o);
         return diagonal({source: o, target: o});
       })
-	  .style("stroke", function(d) { return d.target.type == "action" ? "black" : color(d.target.value); })
-	  .style("stroke-width", function(d) { return d.target.type == "action" ? 1 : radius(d.target.prob) * 2; })
-	  .style("stroke-opacity", .3);
+	  .style("stroke", function(d) { return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value); })
+	  .style("stroke-width", function(d) { return d.target.type == "action" ? radius(1.0) : radius(d.target.prob); })
+	  .style("stroke-opacity", function(d) {return d.target.type == "action" ? 1.0 : 0.3;})
+      .on("click", function(d) {console.log(d); click(d.target);});
+
 
   // Transition links to their new position.
   link.transition()
@@ -223,6 +259,8 @@ function update(source) {
   link.exit().transition()
       .duration(duration)
       .attr("d", function(d) {
+        console.log("HM");
+        console.log(source);
         var o = {x: source.x, y: source.y};
         return diagonal({source: o, target: o});
       })
