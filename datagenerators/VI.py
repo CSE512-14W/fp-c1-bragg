@@ -5,7 +5,7 @@ def getQValue(mdp, state, a, V):
     nextStates = mdp.getT(state, a)
     q = 0.0
     for (nextState, p) in nextStates:
-        q += p * (mdp.getReward(nextState) + mdp.discount * V[nextState])
+        q += p * (mdp.getReward(state) + mdp.discount * V[nextState])
 
     return q
 

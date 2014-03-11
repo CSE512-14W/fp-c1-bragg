@@ -32,7 +32,7 @@ def outputToJSON(mdp, state, action, prob, v, policy, depth, isState):
     
     return json
 
-gridworld = GridWorld(3, 3, -1, 100, -10, 0.1, 1.0)
+gridworld = GridWorld(3, 3, -10, 100, -100, 0.1, 1.0)
 v = runVI(gridworld)
 print v
 policy = getPolicy(gridworld, v)
