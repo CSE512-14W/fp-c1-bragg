@@ -38,7 +38,7 @@ print v
 policy = getPolicy(gridworld, v)
 print policy
 
-f = open('gridworldJSONdepth5.json', 'w')
+f = open('../data/gridworlddepth5.json', 'w')
 
 print outputToJSON(gridworld, gridworld.getInitialState(), None, 1.0, 
              v, policy, 2, True)

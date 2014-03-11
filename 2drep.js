@@ -6,14 +6,15 @@ function draw(width, height) {
 
     var boxHeight = 50;
     var boxWidth = 50;
-    for (k = 0; k < 3; k++) {
-	for (j = 0; j < 3; j++) {
+    for (k = 2; k > -1; k--) {
+	for (j = 2; j > -1; j--) {
 	    s.append("rect")
 		.attr("width", boxHeight)
 	        .attr("class", "rep")
 	        .attr("name", "s" + k + "-" + j)
 	        .attr("height", boxWidth)
-	        .attr("transform", "translate(" + k * boxHeight + "," + j*boxWidth + ")")
+	        .attr("transform", "translate(" +  k * boxHeight + "," + 
+		      (2-j)*boxWidth + ")")
 	        .style("stroke", "black")
 	        .style("stroke-width", "1px")
 	        .style("fill", function(d) {return "white";})

@@ -32,6 +32,8 @@ class GridWorld:
     def getActions(self, state):
         (x,y) = state
         actions = []
+        if (x,y) == (2, 2):
+            return ['Exit']
         if (x,y) == (-1,-1):
             return ['None']
         if y < self.y - 1:

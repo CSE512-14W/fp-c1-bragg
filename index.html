@@ -48,12 +48,21 @@ var valRange =  {min: Infinity, max: -Infinity};
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
+ // Define the zoom function for the zoomable tree
+
+function zoom() {
+  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+var zoomListener = d3.behavior.zoom().on("zoom", zoom);
+
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+    .call(zoomListener)
+    .on("dblclick.zoom", null)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
 // d3.json("data/gridworld.json", function(error, flare) {
 d3.json("data/gridworlddepth5.json", function(error, data) {
