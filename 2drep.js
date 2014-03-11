@@ -1,7 +1,7 @@
 function draw(width, height) {
     s = d3.select(".rep").append("svg")
-	.attr("width", width)
-        .attr("height", height)
+	.attr("width", 150)
+        .attr("height", 150)
         .attr("class", "rep");
 
     var boxHeight = 50;

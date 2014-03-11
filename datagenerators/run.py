@@ -21,9 +21,12 @@ def outputToJSON(mdp, state, action, prob, v, policy, depth, isState):
         json['value'] = "0"
         
         states = []
+        qvalue = 0.0
         for (s, p) in mdp.getT(state, action):
             states.append(outputToJSON(mdp, s, None, p, 
                                        v, policy, depth-1, True))
+            qvalue += p * v[s]
+        json['qvalue'] = qvalue
         json['children'] = states
         json['type'] = "action"
     
@@ -35,12 +38,12 @@ print v
 policy = getPolicy(gridworld, v)
 print policy
 
-f = open('gridworldJSON2', 'w')
+f = open('gridworldJSONdepth5.json', 'w')
 
 print outputToJSON(gridworld, gridworld.getInitialState(), None, 1.0, 
              v, policy, 2, True)
 
 f.write(json.dumps(outputToJSON(gridworld, gridworld.getInitialState(), 
-                                None, 1.0, v, policy, 2, True),
+                                None, 1.0, v, policy, 5, True),
                    indent=4))
 

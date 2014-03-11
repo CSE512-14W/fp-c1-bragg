@@ -56,7 +56,7 @@ var svg = d3.select("body").append("svg")
 
 
 // d3.json("data/gridworld.json", function(error, flare) {
-d3.json("data/gridworlddepth2.json", function(error, data) {
+d3.json("data/gridworlddepth5.json", function(error, data) {
   root = data;
   root.x0 = height / 2;
   root.y0 = 0;
@@ -237,7 +237,7 @@ function click(d) {
 
 </script>
 
-<div class="rep" style="float:right">
+<div class="rep" style="position:absolute; left:20px; top:20px">
 <script src="2drep.js"></script>
 <script>
 draw(width, height);
