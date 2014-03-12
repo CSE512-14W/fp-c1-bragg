@@ -2,6 +2,7 @@
 <meta charset="utf-8">
 <style>
 
+/* graph defaults */
 .node {
   cursor: pointer;
 }
@@ -13,8 +14,9 @@
   stroke-width: 1.5px;
 }
 
+
 .node text {
-  font: 10px sans-serif;
+  font: 16px sans-serif;
 }
 
 .link {
@@ -23,20 +25,46 @@
   stroke-width: 1.5px;
 }
 
+/* general */
+#container {
+  margin: 0px auto;
+  padding: 10px 10px;
+}
+
+#viz {
+  background-color: #B0B0B0;
+  margin: 0px auto;
+}
+
+#rep {
+  position: relative;
+  left: 20px;
+  top: 20px;
+}
+
+
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<div id="container">
+  <div id="rep"></div>
+</div>
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<script src="http://d3js.org/colorbrewer.v1.min.js" type="text/javascript"></script>
 <script>
 
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 960 - margin.right - margin.left,
-    height = 800 - margin.top - margin.bottom;
+var aspect = 960 / 600;
+//    margin = {top: 20, right: 120, bottom: 20, left: 120},
+    margin = {top: 20, right: 120, bottom: 20, left: 120},
+    width = getWidth() - margin.right - margin.left,
+    height = width / aspect;
     
 var i = 0,
     duration = 750,
-    root,
     color,
+    root,
     radius;
+
 
 var tree = d3.layout.tree()
     .size([height, width]);
@@ -76,7 +104,8 @@ function zoom() {
 
 var zoomListener = d3.behavior.zoom().on("zoom", zoom);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#container").append("svg")
+    .attr("id", "viz")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .call(zoomListener)
@@ -115,9 +144,10 @@ d3.json("data/gridworlddepth5.json", function(error, data) {
   }
   
   parse(root);
-  color = d3.scale.linear()
-      .domain([valRange.min, (valRange.max + valRange.min) / 2, valRange.max])
-      .range(["red", "#F8F8F8", "green"]);
+  color = d3.scale.quantize().domain([valRange.min, valRange.max])
+              .range(colorbrewer.RdYlGn[11]);
+
+
 
   //radius = d3.scale.sqrt()
   //    .domain([0, 1])
@@ -131,8 +161,25 @@ d3.json("data/gridworlddepth5.json", function(error, data) {
   root.children.forEach(collapse);
   update(root);
   
-});
 
+  // Draw iegend
+  var legend = d3.select("#container").append('div')
+      .attr('id', 'legend')
+    .append('ul')
+      .attr('class', 'list-inline');
+
+  var keys = legend.selectAll('li.key')
+      .data(color.range());
+
+  keys.enter().append('li')
+      .attr('class', 'key')
+      .style('border-top-color', String)
+      .text(function(d) {
+          var r = color.invertExtent(d);
+          return r[0];
+      });
+
+});
 
 
 d3.select(self.frameElement).style("height", "800px");
@@ -185,6 +232,71 @@ function update(source) {
        //.style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
        //.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
       .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; })
+    .append("svg:title")
+      .text(function(d) { return d.value; });
+
+  nodeEnter.append("text")
+      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .text(function(d) { return d.name; })
+      .style("fill-opacity", 1e-6)
+      .style("fill", "white");
+
+  // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+  nodeUpdate.select("circle")
+      // .attr("r", 4.5)
+      .attr("r", function(d) { return (d.type == "action") ? radius(0.5) : radius(d.prob / 2) })
+      .attr("r", function(d) { return (d.type == "action") ? radius(0.5) : radius(0.5) })
+      //.style("stroke", function(d) { return d._children ? "lightsteelblue" : "none"; })
+      .style("stroke-width", 3)
+      // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+      //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
+    .style("fill", function(d) { return (d.type == "action") ? color(d.qvalue) : color(d.value); })
+        //    .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
+	//.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
+
+      .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; });
+
+  nodeUpdate.select("text")
+      .style("fill-opacity", 1)
+      .style("fill", "white");
+
+  // Transition exiting nodes to the parent's new position.
+  var nodeExit = node.exit().transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .remove();
+
+  nodeExit.select("circle")
+      .attr("r", 1e-6);
+
+  nodeExit.select("text")
+      .style("fill-opacity", 1e-6)
+      .style("fill", "white");
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+      .data(links, function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", function(d) {
+        console.log("WHY");
+        console.log(source);
+        var o = {x: source.x0, y: source.y0};
+        console.log("O");
+        console.log(o);
+        return diagonal({source: o, target: o});
+      })
+	  .style("stroke", function(d) { return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value); })
+	  .style("stroke-width", function(d) { return d.target.type == "action" ? radius(1.0) : radius(d.target.prob); })
+	  .style("stroke-opacity", function(d) {return d.target.type == "action" ? 1.0 : 1.0; })
     .append("svg:title")
       .text(function(d) { return d.value; });
 
@@ -284,6 +396,20 @@ function click(d) {
   }
   update(d);
 }
+
+function getWidth() {
+  // console.log($"#container");
+  var width = Math.max(960, $("#container").width());
+
+  return width;
+}
+
+$(window).on("resize", function() {
+  var width = getWidth();
+  d3.select("#viz")
+          .attr("width", width)
+          .attr("height", width / aspect);
+});
 
 </script>
 
