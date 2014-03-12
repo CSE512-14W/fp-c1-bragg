@@ -56,9 +56,13 @@
 var aspect = 960 / 600;
 //    margin = {top: 20, right: 120, bottom: 20, left: 120},
     margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = getWidth() - margin.right - margin.left,
+    width = 960 - margin.right - margin.left,
     height = width / aspect;
     
+$(document).ready(function () {
+  resizeSVG();
+});
+
 var i = 0,
     duration = 750,
     color,
@@ -404,12 +408,14 @@ function getWidth() {
   return width;
 }
 
-$(window).on("resize", function() {
+function resizeSVG() {
   var width = getWidth();
   d3.select("#viz")
           .attr("width", width)
           .attr("height", width / aspect);
-});
+}
+
+$(window).on("resize", resizeSVG);
 
 </script>
 
