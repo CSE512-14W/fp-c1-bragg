@@ -17,39 +17,134 @@ function draw(width, height) {
 		      (2-j)*boxWidth + ")")
 	        .style("stroke", "black")
 	        .style("stroke-width", "1px")
-	        .style("fill", function(d) {return "white";})
-	        .on("mouseover", function (d) {this.style.fill = "black";
-					       d3.selectAll("circle." + this.getAttribute("name")) 
-					      .style("stroke", 
-						     function(d) {
-							 d._stroke = d.stroke; 
-							 return "black";})
-					      .style("stroke-width", 10);})
-	        .on("mouseout", function (d)  {this.style.fill = "white";
-		    d3.selectAll("circle." + this.getAttribute("name")) 
-					      .style("stroke", 
-						     function(d) {
-							 return "None";})
-					      .style("stroke-width", 3);});
+	        .style("fill", function(d) {
+		    if (k == 1 && j == 0) {
+			return "red";
+		    }
+		    else if (k == 2 && j == 2) {
+			return "green";
+		    } else {
+			return "white";
+		    }})
+	        .on("mouseover", function (d) {
+		    this.style._fill = this.style.fill;
+		    this.style.fill = "black";
+		    highlightNodes(this.getAttribute("name"));})
+	        .on("mouseout", function (d)  {
+		    this.style.fill = this.style._fill;
+		    this.style._fill = null;
+		    unhighlightNodes(this.getAttribute("name"));});
+	    s.append("text")
+            .text("FIRE PIT")
+	        .attr("transform", "translate(" +  k * boxHeight + "," + 
+		      (2-j)*boxWidth + ")")
+	        //.attr("x", k * boxHeight) 
+		//.attr("y", (2-j) * boxWidth)
+	        .attr("text-anchor", "end")
+	        .style("fill-opacity", 1.0)
+	        .style("fill", "red");
 	}
     }
 }
 
 
-function highlight(state) {
+function highlightState(state) {
     rects = document.querySelectorAll('rect.rep')
     //rects = d3.selectAll("rect.rep");
     for (k = 0; k < rects.length; k++) {
-	//console.log(rects[0].getAttribute("name")); console.log(state); 
-	rects[k].getAttribute("name") == state  ? rects[k].style.fill = "black" : 0;
+	if (rects[k].getAttribute("name") == state) {
+	    rects[k].style._fill = rects[k].style.fill;
+	    rects[k].style.fill = "black";
+	}
     }
 }
 
-function unhighlight(state) {
+function unhighlightState(state) {
     rects = document.querySelectorAll('rect.rep')
     //rects = d3.selectAll("rect.rep");
     for (k = 0; k < rects.length; k++) {
-	//console.log(rects[0].getAttribute("name")); console.log(state); 
-	rects[k].getAttribute("name") == state  ? rects[k].style.fill = "white" : 0;
+	if (rects[k].getAttribute("name") == state) {
+	    rects[k].style.fill = rects[k].style._fill;
+	    rects[k].style._fill = null;
+	}
+    }
+}
+
+function highlightAction(state, action, states) {
+    rects = document.querySelectorAll('rect.rep')
+    console.log(states);
+    for (k = 0; k < rects.length; k++) {
+	for (j = 0; j < states.length; j++) {
+	    nextState = states[j];
+	    if (rects[k].getAttribute("name") == nextState) {
+		rects[k].style._fill = rects[k].style.fill;
+		rects[k].style.fill = "orange";
+	    }
+	}
+	if (rects[k].getAttribute("name") == state) {
+	    if (!rects[k].style._fill) {
+		rects[k].style._fill = rects[k].style.fill;
+	    }
+	    rects[k].style.fill = "black";
+	}
+	
+    }
+}
+
+
+function unhighlightAction(state, action, states) {
+    rects = document.querySelectorAll('rect.rep')
+    for (k = 0; k < rects.length; k++) {
+	for (j = 0; j < states.length; j++) {
+	    nextState = states[j];
+	    if (rects[k].getAttribute("name") == nextState) {
+		rects[k].style.fill = rects[k].style._fill;
+		rects[k].style._fill = null;
+	    }
+	}
+	if (rects[k].getAttribute("name") == state) {
+	    console.log(rects[k].style._fill);
+	    if (rects[k].style._fill) {
+		rects[k].style.fill = rects[k].style._fill;
+		rects[k].style._fill = null;
+
+	    }
+	}
+	
+    }
+}
+
+function highlightOneAction(state, action, nextState) {
+    rects = document.querySelectorAll('rect.rep')
+    for (k = 0; k < rects.length; k++) {
+	if (rects[k].getAttribute("name") == state) {
+	    rects[k].style._fill = rects[k].style.fill;
+	    rects[k].style.fill = "black";
+	}
+	if (rects[k].getAttribute("name") == nextState) {
+	    if (!rects[k].style._fill) {
+		rects[k].style._fill = rects[k].style.fill;
+	    }
+	    rects[k].style.fill = "orange";
+	}
+    }
+}
+
+
+function unhighlightOneAction(state, action, nextState) {
+    rects = document.querySelectorAll('rect.rep')
+    for (k = 0; k < rects.length; k++) {
+	if (rects[k].getAttribute("name") == nextState) {
+	    rects[k].style.fill = rects[k].style._fill;
+	    rects[k].style._fill = null;
+	} 
+	if (rects[k].getAttribute("name") == state) {
+	    if (rects[k].style._fill) {
+		rects[k].style.fill = rects[k].style._fill;
+		rects[k].style._fill = null;
+
+	    }
+
+	}
     }
 }

@@ -80,20 +80,12 @@ var valRange =  {min: Infinity, max: -Infinity};
 
 var diagonal = d3.svg.diagonal()
     .source( function(d) {
-             console.log("YOYO");
-             console.log(d);
              if (d.target.type == "state") {
-               console.log("POO");
                console.log(d.target.poo);
                if (d.target.poo < 0) {
-		console.log("BEFORE"); console.log(d.source.x0); 
                  return {x: d.source.x - radius(parseFloat(d.target.poo) * -1), y: d.source.y};
-                console.log("AFTER"); console.log(d.source.x0);
                } else {
-		console.log("BEFORE"); console.log(d.source.x0);
                  return {x: d.source.x + radius(parseFloat(d.target.poo)), y: d.source.y};
-                console.log("AFTER"); console.log(d.source.x0);
-
 		}
              }
              return d.source;
@@ -208,20 +200,40 @@ function update(source) {
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
       .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-      .on("mouseover", function(d) {highlight(d.name); d3.selectAll("circle." + d.name) 
+      .on("mouseover", function(d) {
+if (d.type == "state") {
+highlightState(d.name); d3.selectAll("circle." + d.name) 
 					      .style("stroke", 
 						     function(d) {
 							 d._stroke = d.stroke; 
 							 return "black";})
-					      .style("stroke-width", 10);})
-      .on("mouseout", function (d)  {unhighlight(d.name); d3.selectAll("circle." + d.name) 
+					      .style("stroke-width", 10);}
+else {
+if (d._children) {
+highlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
+} else {
+highlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));} 
+}})
+      .on("mouseout", function (d)  {
+if (d.type == "state") {
+unhighlightState(d.name); d3.selectAll("circle." + d.name) 
 					      .style("stroke", 
 						     function(d) {
 							 return "None";})
-					      .style("stroke-width", 3);})
+					      .style("stroke-width", 3);}
+else {
+if (d._children) {
+unhighlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
 
+} else {
+unhighlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));} 
 
+}
+
+})
+				  
       .on("click", click);
+
 
   nodeEnter.append("circle")
       .attr("r", 1e-6)
@@ -232,8 +244,8 @@ function update(source) {
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
-    .style("fill", function(d) { console.log(d.qvalue);console.log(color(d.qvalue)); return (d.type == "action") ? color(d.qvalue) : color(d.value); })
-       //.style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
+    .style("fill", function(d) { return (d.type == "action") ? color(d.qvalue) : color(d.value); })
+       .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
        //.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
       .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; })
     .append("svg:title")
@@ -254,14 +266,14 @@ function update(source) {
 
   nodeUpdate.select("circle")
       // .attr("r", 4.5)
-      .attr("r", function(d) { return (d.type == "action") ? radius(0.5) : radius(d.prob / 2) })
-      .attr("r", function(d) { return (d.type == "action") ? radius(0.5) : radius(0.5) })
+      //.attr("r", function(d) { return (d.type == "action") ? radius(0.01) : radius(d.prob / 2) })
+      .attr("r", function(d) { return (d.type == "action") ? radius(0.01) : radius(0.5) })
       //.style("stroke", function(d) { return d._children ? "lightsteelblue" : "none"; })
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
     .style("fill", function(d) { return (d.type == "action") ? color(d.qvalue) : color(d.value); })
-        //    .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
+            .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
 	//.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
 
       .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; });
@@ -289,17 +301,43 @@ function update(source) {
   link.enter().insert("path", "g")
       .attr("class", "link")
       .attr("d", function(d) {
-        console.log("WHY");
-        console.log(source);
         var o = {x: source.x0, y: source.y0};
-        console.log("O");
-        console.log(o);
         return diagonal({source: o, target: o});
       })
 	  .style("stroke", function(d) { return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value); })
 	  .style("stroke-width", function(d) { return d.target.type == "action" ? radius(1.0) : radius(d.target.prob); })
 	  .style("stroke-opacity", function(d) {return d.target.type == "action" ? 1.0 : 0.3;})
-      .on("click", function(d) {console.log(d); click(d.target);});
+      .on("mouseover", function (d) {d3.select(this).style("stroke", function (d) {return d.target.type == "action" ? d3.rgb(color(d.target.qvalue)).darker(1) : d3.rgb(color(d.target.value)).darker(1);});
+if (d.target.type == "action")  {
+if (d.target._children) {
+highlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
+} else {
+highlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));} 
+
+} else {
+
+highlightOneAction(d.source.parent.name, d.name, d.target.name);
+
+}
+
+})
+      .on("mouseout", function (d) {d3.select(this).style("stroke", function (d)
+{return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value);});
+
+if (d.target.type == "action")  {
+if (d.target._children) {
+unhighlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
+
+} else {
+unhighlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));} 
+
+} else {
+unhighlightOneAction(d.source.parent.name, d.name, d.target.name);
+}
+
+
+})
+      .on("click", function(d) {click(d.target);});
 
 
   // Transition links to their new position.
@@ -311,8 +349,6 @@ function update(source) {
   link.exit().transition()
       .duration(duration)
       .attr("d", function(d) {
-        console.log("HM");
-        console.log(source);
         var o = {x: source.x, y: source.y};
         return diagonal({source: o, target: o});
       })
@@ -335,6 +371,23 @@ function click(d) {
     d._children = null;
   }
   update(d);
+}
+
+function highlightNodes(state) {
+  d3.selectAll("circle." + state) 
+				  .style("stroke", 
+				  function(d) {
+				  d._stroke = d.stroke; 
+				  return "black";})
+				  .style("stroke-width", 10);
+}
+
+function unhighlightNodes(state) {
+d3.selectAll("circle." + state) 
+				  .style("stroke", 
+				  function(d) {
+				  return "None";})
+				  .style("stroke-width", 3);
 }
 
 function getWidth() {
