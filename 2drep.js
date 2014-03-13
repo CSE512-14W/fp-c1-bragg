@@ -15,7 +15,7 @@ function draw(width, height) {
 	        .attr("height", boxWidth)
 	        .attr("transform", "translate(" +  k * boxHeight + "," + 
 		      (2-j)*boxWidth + ")")
-	        .style("stroke", "black")
+	        .style("stroke", "#686868")
 	        .style("stroke-width", "1px")
 	        .style("fill", function(d) {
 		    if (k == 1 && j == 0) {
