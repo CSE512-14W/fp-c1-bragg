@@ -25,6 +25,19 @@
   stroke-width: 1.5px;
 }
 
+div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  width: 60px;                  
+  height: 28px;                 
+  padding: 2px;             
+  font: 12px sans-serif;        
+  background: lightsteelblue;   
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}
+
 /* general */
 #container {
   margin: 0px auto;
@@ -48,6 +61,7 @@
   right: 10px;
   top: 10px;
   width: 50%;
+  font: 16px sans-serif;
   color: white;
 }
 
@@ -232,37 +246,56 @@ function update(source) {
       .attr("class", "node")
       .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
       .on("mouseover", function(d) {
-if (d.type == "state") {
-highlightState(d.name); d3.selectAll("circle." + d.name) 
-					      .style("stroke", 
-						     function(d) {
-							 d._stroke = d.stroke; 
-							 return "black";})
-					      .style("stroke-width", 10);}
-else {
-if (d._children) {
-highlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
-} else {
-highlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));} 
-}})
+        if (d.type == "state") {
+          highlightState(d.name);
+          d3.selectAll("circle." + d.name) 
+					      .style("stroke", function(d) {
+                    d._stroke = d.stroke; 
+                    return "black";})
+					      .style("stroke-width", 10);
+                
+          div.transition()
+            .duration(0)
+            .style("opacity", 1)
+            .text("V = " + d.value.toFixed(1))
+            .style("left", (d3.event.pageX - 34) + "px")
+            .style("top", (d3.event.pageY - 24) + "px");
+        }
+        else {
+          if (d._children) {
+            highlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
+          }
+          else {
+            highlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));
+          }
+          var txt = "Q = " + d.qvalue.toFixed(1); 
+        }
+        
+        
+      })
       .on("mouseout", function (d)  {
-if (d.type == "state") {
-unhighlightState(d.name); d3.selectAll("circle." + d.name) 
-					      .style("stroke", 
-						     function(d) {
-							 return "None";})
-					      .style("stroke-width", 3);}
-else {
-if (d._children) {
-unhighlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
+        if (d.type == "state") {
+          unhighlightState(d.name);
+          d3.selectAll("circle." + d.name) 
+					      .style("stroke", function(d) { return "None"; })
+					      .style("stroke-width", 3);
+          
+          window.setTimeout(function() {
+            div.transition()
+              .duration(200)
+              .style("opacity", 1e-6);
+              }, 400);
+        }
+        else {
+          if (d._children) {
+            unhighlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
 
-} else {
-unhighlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));} 
+          }
+          else {
+            unhighlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));} 
+          }
 
-}
-
-})
-				  
+      }) 
       .on("click", click);
 
 
@@ -279,8 +312,8 @@ unhighlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.n
        .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
        //.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
       .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; })
-    .append("svg:title")
-      .text(function(d) { return d.value; });
+    // .append("svg:title")
+    //   .text(function(d) { return d.value; });
 
   nodeEnter.append("text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
@@ -338,37 +371,67 @@ unhighlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.n
 	  .style("stroke", function(d) { return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value); })
 	  .style("stroke-width", function(d) { return d.target.type == "action" ? radius(1.0) : radius(d.target.prob); })
 	  .style("stroke-opacity", function(d) {return d.target.type == "action" ? 1.0 : 1.0;})
-      .on("mouseover", function (d) {d3.select(this).style("stroke", function (d) {return d.target.type == "action" ? d3.rgb(color(d.target.qvalue)).darker(1) : d3.rgb(color(d.target.value)).darker(1);});
-if (d.target.type == "action")  {
-if (d.target._children) {
-highlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
-} else {
-highlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));} 
+    .on("mouseover", function (d) {
+      d3.select(this).style("stroke", function (d) {
+        return d.target.type == "action" ? d3.rgb(color(d.target.qvalue)).darker(1) : d3.rgb(color(d.target.value)).darker(1);
+      });
+      if (d.target.type == "action")  {
+        if (d.target._children) {
+          highlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
+        }
+        else {
+          highlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));
+        }  
+        
+        div.transition()
+          .duration(0)
+          .style("opacity", 1)
+          .text("Q = " + d.target.qvalue.toFixed(1))
+          .style("left", (d3.event.pageX - 34) + "px")
+          .style("top", (d3.event.pageY - 24) + "px"); 
+      }
+      else {
+        highlightOneAction(d.source.parent.name, d.name, d.target.name);
+        div.transition()
+          .duration(0)
+          .style("opacity", 1)
+          .text("P = " + d.target.prob)
+          .style("left", (d3.event.pageX - 34) + "px")
+          .style("top", (d3.event.pageY - 24) + "px");
+        
+      
+      }
+      // tooltip
 
-} else {
 
-highlightOneAction(d.source.parent.name, d.name, d.target.name);
+      })
+    .on("mouseout", function (d) {
+      d3.select(this).style("stroke", function (d) {
+        return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value);
+      });
 
-}
-
-})
-      .on("mouseout", function (d) {d3.select(this).style("stroke", function (d)
-{return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value);});
-
-if (d.target.type == "action")  {
-if (d.target._children) {
-unhighlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
-
-} else {
-unhighlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));} 
-
-} else {
-unhighlightOneAction(d.source.parent.name, d.name, d.target.name);
-}
-
-
-})
-      .on("click", function(d) {click(d.target);});
+      if (d.target.type == "action")  {
+        if (d.target._children) {
+          unhighlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
+        }
+        else {
+          unhighlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));
+        } 
+      }
+      else {
+        unhighlightOneAction(d.source.parent.name, d.name, d.target.name);
+   
+      }
+    
+      
+      window.setTimeout(function() {
+        div.transition()
+          .duration(200)
+          .style("opacity", 1e-6);
+          }, 400);
+      
+    })
+    .on("click", function(d) {click(d.target);});
 
 
   // Transition links to their new position.
@@ -436,5 +499,9 @@ function resizeSVG() {
 }
 
 $(window).on("resize", resizeSVG);
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 1e-6);
 
 </script>
