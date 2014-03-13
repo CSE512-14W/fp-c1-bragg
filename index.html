@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<link rel="stylesheet" href="slider/d3.slider.css" />  
 <style>
 
 /* graph defaults */
@@ -42,6 +43,7 @@ div.tooltip {
 #container {
   margin: 0px auto;
   padding: 10px 10px;
+  /*width: 100%;*/
 }
 
 #viz {
@@ -65,6 +67,15 @@ div.tooltip {
   color: white;
 }
 
+#sliderContainer {
+  position: absolute;
+  right: 75px;
+  top: 100px;
+  height: 25%;
+  width: 100px;
+
+}
+
 #legend-val {
   padding: 1.5em 0 0 1.5em;
 }
@@ -84,10 +95,16 @@ li.key {
 <body>
 <div id="container">
   <div class="rep"></div>
+
   <div id="legends"></div>
 </div>
+  <div id="sliderContainer">
+  <h2>Collapse probability less than: <span id="slidertext">0.0</span></h2>
+  <div id="sliderP"></div>
+  </div>
 <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
 <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<script src="slider/d3.slider.js"></script>
 <script src="http://d3js.org/colorbrewer.v1.min.js" type="text/javascript"></script>
 <script src="2drep.js" type="text/javascript"></script>
 <script>
@@ -219,18 +236,82 @@ d3.json("data/gridworlddepth5.json", function(error, data) {
           return r[0].toFixed(0);
       });
 
+  //Draw slider
+  var slider = d3.select("#sliderP")
+    .call(d3.slider().axis(true).min(1).max(0).value(0)
+    .orientation("vertical").step(0.01)
+    .on("slide", function(evt, value) {
+      d3.select("#slidertext").text(1.0 - value);
+      console.log("HUH");
+      console.log(d3.selectAll("g.node"));
+      filter(root, 1.0 - value);
+      sizeOfWhereToCollapse = 0;
+      for (key in whereToCollapse) {
+        sizeOfWhereToCollapse++;
+      }
+      if (sizeOfWhereToCollapse == 0) {
+        //update(root, null, false);
+      } else {
+            update(root, null, true);
 
+      }
+      whereToCollapse = {};
+      }));				  
+      
 });
+
+
+//map from node id to collapse destination
+var whereToCollapse = {};
+
+function filter(source, value) {
+  console.log("HERE");
+  console.log(source);
+  if (source.type == "action") { 
+    if (source.children) {
+      source.children.forEach(function (e) {filter(e, value);});
+    }
+  } else {
+    if (source.children) {
+	if (parseFloat(source.incomingProbability) < value && source.incomingProbability > 0) {
+            stuffToCollapse = {}
+            source.children.forEach(function(e) {console.log("THERE"); console.log(e); whereToCollapse[e.id] = source; stuffToCollapse[e.id] = true; filterAll(e, source);});
+            source._children = source.children;
+            source.children = null;
+            console.log("UPDATING");
+            console.log(source);
+            //update(source, stuffToCollapse,  source);
+          
+       } else {
+         source.children.forEach(function (e) {filter(e, value);});
+       }						  
+    }
+  }
+
+}
+
+function filterAll(source, collapseDestination) {
+  console.log("FILTERING ALL");
+  console.log(source);
+  if (source.children) {
+    source._children = source.children;
+    source.children = null;
+    stuffToCollapse = {}
+    source._children.forEach(function (e) {whereToCollapse[e.id] = collapseDestination; stuffToCollapse[e.id] = true; filterAll(e, collapseDestination);});
+    
+    //update(source, stuffToCollapse, collapseDestination);
+  }
+}
 
 
 d3.select(self.frameElement).style("height", "800px");
 
-function update(source) {
+function update(source, stuffToCollapse, isFilter) {
 
+						  
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
-
 
   // Normalize for fixed-depth. Changed to alternate depths depending on action / state nodes.
   // nodes.forEach(function(d) { d.y = d.depth * 180; });
@@ -348,7 +429,15 @@ function update(source) {
   // Transition exiting nodes to the parent's new position.
   var nodeExit = node.exit().transition()
       .duration(duration)
-      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .attr("transform", function(d) { 
+         if (isFilter) {
+           console.log("MERP");
+           console.log(d);
+           console.log(whereToCollapse);
+           return "translate(" + whereToCollapse[d.id].y + "," + whereToCollapse[d.id].x + ")"; 
+         } else {
+         return "translate(" + source.y + "," + source.x + ")";
+         } })
       .remove();
 
   nodeExit.select("circle")
@@ -444,7 +533,19 @@ function update(source) {
       .duration(duration)
       .attr("d", function(d) {
         var o = {x: source.x, y: source.y};
-        return diagonal({source: o, target: o});
+        console.log("transitioning link");
+        console.log(d);
+        console.log(o);
+        console.log(isFilter);
+	if (isFilter) {
+          console.log("IS FILTER");
+          console.log(stuffToCollapse);
+          //if (d.target.id in stuffToCollapse) {
+	    return diagonal({source: whereToCollapse[d.target.id], target: whereToCollapse[d.target.id]});
+          //}
+        } else {
+          return diagonal({source: o, target: o});
+        }
       })
       .remove();
 
