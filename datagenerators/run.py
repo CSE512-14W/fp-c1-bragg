@@ -21,7 +21,7 @@ def outputToJSON(mdp, state, action, prob, v,
                 if  qvalue > bestActionQValue:
                     bestAction = a
                     bestActionQValue = qvalue
-            json['policy'] = a
+            json['policy'] = bestAction
             json['children'] = actions
         json['type'] = "state"
         json['poo'] = "%f" % pointOfOrigin
@@ -52,7 +52,7 @@ def outputToJSON(mdp, state, action, prob, v,
     
     return json
 
-gridworld = GridWorld(3, 3, -10, 100, -100, 0.1, 1.0)
+gridworld = GridWorld(3, 3, -10, 100, -10000, 0.1, 1.0)
 v = runVI(gridworld)
 print v
 policy = getPolicy(gridworld, v)

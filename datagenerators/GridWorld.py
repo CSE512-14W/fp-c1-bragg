@@ -32,10 +32,11 @@ class GridWorld:
     def getActions(self, state):
         (x,y) = state
         actions = []
-        if (x,y) == (2, 2):
+        if (x,y) == (2, 0):
             return ['Exit']
         if (x,y) == (-1,-1):
             return ['None']
+        """
         if y < self.y - 1:
             actions.append('N')
         if y > 0:
@@ -44,8 +45,9 @@ class GridWorld:
             actions.append('E')
         if x > 0:
             actions.append('W')
-
-        return actions
+        """
+        return ['N', 'S', 'E', 'W']
+        #return actions
 
     def isTerminal(self, state):
         if state == (-1,-1):

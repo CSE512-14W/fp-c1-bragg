@@ -385,7 +385,7 @@ function update(source, stuffToCollapse, isFilter) {
         if (d.type == "state") {
           unhighlightState(d.name);
           d3.selectAll("circle." + d.name) 
-					      .style("stroke", function(d) { return "None"; })
+					      .style("stroke", function(d) { return "white"; })
 					      .style("stroke-width", 3);
           
           window.setTimeout(function() {
@@ -441,6 +441,7 @@ function update(source, stuffToCollapse, isFilter) {
       //.attr("r", function(d) { return (d.type == "action") ? radius(0.01) : radius(d.prob / 2) })
       .attr("r", function(d) { return (d.type == "action") ? radius(0.01) : radius(0.5) })
       //.style("stroke", function(d) { return d._children ? "lightsteelblue" : "none"; })
+      .style("stroke", "white")
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
@@ -451,6 +452,8 @@ function update(source, stuffToCollapse, isFilter) {
       .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; });
 
   nodeUpdate.select("text")
+      .style("font-weight", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "bold" : ""; })
+      .style("fill", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "gold" : "white"; })
       .style("fill-opacity", 1);
 
   // Transition exiting nodes to the parent's new position.
@@ -595,6 +598,9 @@ function click(d) {
   update(d);
 }
 
+function highlightLinks(source) {
+  
+}
 function highlightNodes(state) {
   d3.selectAll("circle." + state) 
 				  .style("stroke", 
@@ -608,7 +614,7 @@ function unhighlightNodes(state) {
 d3.selectAll("circle." + state) 
 				  .style("stroke", 
 				  function(d) {
-				  return "None";})
+				  return "white";})
 				  .style("stroke-width", 3);
 }
 

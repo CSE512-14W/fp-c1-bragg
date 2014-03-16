@@ -21,7 +21,7 @@ function draw(width, height) {
 		    if (k == 1 && j == 0) {
 			return "red";
 		    }
-		    else if (k == 2 && j == 2) {
+		    else if (k == 2 && j == 0) {
 			return "green";
 		    } else {
 			return "white";
