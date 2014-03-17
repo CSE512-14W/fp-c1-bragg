@@ -309,7 +309,7 @@ function filter(source, value) {
     }
   } else {
     if (source.children) {
-	if (parseFloat(source.incomingProbability) < value && source.incomingProbability > 0) {
+	if (parseFloat(source.incomingProbability) < value && parseFloat(source.incomingProbability) > 0) {
             stuffToCollapse = {}
             source.children.forEach(function(e) {console.log("THERE"); console.log(e); whereToCollapse[e.id] = source; stuffToCollapse[e.id] = true; filterAll(e, source);});
             source._children = source.children;
@@ -679,6 +679,7 @@ function makeChildrenNodes(node, data) {
         newNode['value'] = parseFloat(row['value']);
         //newNode['qvalue'] = row['qvalue'];
         newNode['prob'] = parseFloat(row['incomingProbability']);
+        newNode['incomingProbability'] = parseFloat(row['incomingProbability']);
         newNode['poo'] = row['poo'];
 	newNode['policy'] = row['bestAction'];
         children.push(newNode);
