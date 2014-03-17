@@ -153,6 +153,7 @@ var i = 0,
     root,
     radius;
 
+rewardSetting = 'acc';
 
 var tree = d3.layout.tree()
     .size([height, width]);
@@ -265,7 +266,7 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
 
   // Display tree
   // root.children.forEach(collapse);
-    initRoot(root);
+  initRoot(root);
   update(root);
   
 
@@ -313,6 +314,21 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
       }));				  
       
 });});
+
+function colorValue(node, rewardSetting) {
+  if (node.type == "action" && rewardSetting != "acc") {
+    return node.qvalue;
+  }
+  else if (node.type == "action") {
+    return node.qreward;
+  }
+  else if (node.type == "state" && rewardSetting != "acc") {
+    return node.value;
+  }
+  else {
+    return node.reward;
+  }
+}
 
 
 //map from node id to collapse destination
@@ -396,7 +412,7 @@ function update(source, stuffToCollapse, isFilter) {
           div.transition()
             .duration(0)
             .style("opacity", 1)
-            .text("V = " + d.value.toFixed(1))
+            .text(rewardSetting == "acc" ? "R = " + d.reward.toFixed(1) : "V = " + d.value.toFixed(1))
             .style("left", (d3.event.pageX - 34) + "px")
             .style("top", (d3.event.pageY - 24) + "px");
         }
@@ -409,7 +425,6 @@ function update(source, stuffToCollapse, isFilter) {
           } else {
             highlightAction(d.parent.name, d.name, getChildren(d.parent.name, d.name));
           }
-          var txt = "Q = " + d.qvalue.toFixed(1); 
         }
         
         
@@ -421,11 +436,11 @@ function update(source, stuffToCollapse, isFilter) {
 					      .style("stroke", function(d) { return "white"; })
 					      .style("stroke-width", 3);
           
-          window.setTimeout(function() {
+          // window.setTimeout(function() {
             div.transition()
               .duration(200)
               .style("opacity", 1e-6);
-              }, 400);
+              // }, 400);
         }
         else {
           if (d._children) {
@@ -451,7 +466,7 @@ function update(source, stuffToCollapse, isFilter) {
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
-    .style("fill", function(d) { return (d.type == "action") ? color(d.qvalue) : color(d.value); })
+    .style("fill", function(d) { return color(colorValue(d), rewardSetting); })
        .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
        //.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
       .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; })
@@ -486,7 +501,7 @@ function update(source, stuffToCollapse, isFilter) {
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
-    .style("fill", function(d) { return (d.type == "action") ? color(d.qvalue) : color(d.value); })
+    .style("fill", function(d) { return color(colorValue(d, rewardSetting)); })
             .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
 	//.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
 
@@ -528,12 +543,12 @@ function update(source, stuffToCollapse, isFilter) {
         var o = {x: source.x0, y: source.y0};
         return diagonal({source: o, target: o});
       })
-	  .style("stroke", function(d) { return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value); })
+	  .style("stroke", function(d) { return color(colorValue(d.target, rewardSetting)); })
 	  .style("stroke-width", function(d) { return d.target.type == "action" ? radius(1.0) : radius(d.target.prob); })
 	  .style("stroke-opacity", function(d) {return d.target.type == "action" ? 1.0 : 1.0;})
     .on("mouseover", function (d) {
       d3.select(this).style("stroke", function (d) {
-        return d.target.type == "action" ? d3.rgb(color(d.target.qvalue)).darker(1) : d3.rgb(color(d.target.value)).darker(1);
+        return d3.rgb(color(colorValue(d.target, rewardSetting))).darker(1);
       });
       if (d.target.type == "action")  {
         if (d.target._children) {
@@ -548,10 +563,11 @@ function update(source, stuffToCollapse, isFilter) {
           highlightAction(d.source.name, d.target.name, getChildren(d.source.name, d.target.name));
         }
         
+
         div.transition()
           .duration(0)
           .style("opacity", 1)
-          .text("Q = " + d.target.qvalue.toFixed(1))
+          .text(rewardSetting == "acc" ? "Q = " + d.target.qreward.toFixed(1) : "Q = " + d.target.qvalue.toFixed(1))
           .style("left", (d3.event.pageX - 34) + "px")
           .style("top", (d3.event.pageY - 24) + "px"); 
       }
@@ -572,7 +588,7 @@ function update(source, stuffToCollapse, isFilter) {
       })
     .on("mouseout", function (d) {
       d3.select(this).style("stroke", function (d) {
-        return d.target.type == "action" ? color(d.target.qvalue) : color(d.target.value);
+        return color(colorValue(d.target, rewardSetting));
       });
 
       if (d.target.type == "action")  {
@@ -591,11 +607,11 @@ function update(source, stuffToCollapse, isFilter) {
       }
     
       
-      window.setTimeout(function() {
+      // window.setTimeout(function() {
         div.transition()
           .duration(200)
           .style("opacity", 1e-6);
-          }, 400);
+          // }, 400);
       
     })
     .on("click", function(d) {click(d.target);});
@@ -656,7 +672,7 @@ function click(d) {
       d.children = makeChildrenNodes(d, tabledata);
       // console.log(d.children);
       // console.log("THERE");
-      update(d);
+      // update(d);
    // });
   }
   else if (d.children) {
@@ -687,6 +703,8 @@ function makeChildrenNodes(node, data) {
         newNode['type'] = 'action';
         //newNode['value'] = row['value'];
         newNode['qvalue'] = parseFloat(row['qvalue']);
+        newNode['qreward_inc'] = parseFloat(row['qreward']);
+        newNode['qreward'] = node['reward'] + parseFloat(row['qreward']);
         children.push(newNode);
       }
     } 
@@ -699,6 +717,8 @@ function makeChildrenNodes(node, data) {
         newNode['name'] = row['state2'];
         newNode['type'] = 'state';
         newNode['value'] = parseFloat(row['value']);
+        newNode['reward'] = node.parent['reward'] + parseFloat(row['reward']);
+        newNode['reward_inc'] = parseFloat(row['reward']);
         //newNode['qvalue'] = row['qvalue'];
         newNode['prob'] = parseFloat(row['incomingProbability']);
         newNode['incomingProbability'] = parseFloat(row['incomingProbability']);
