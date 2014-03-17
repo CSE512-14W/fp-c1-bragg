@@ -30,13 +30,15 @@ def outputQValues(mdp):
 #state1, action, qvalue,  state2, bestAction, value, poo, probability
 def outputTable(mdp, v):
     f = open('../data/gridworldtable', 'w')
-    f.write('state1,action,qvalue,state2,bestAction,value,poo,incomingProbability\n')
+    f.write('state1,action,qvalue,qreward,state2,bestAction,value,reward,poo,incomingProbability\n')
     for state in mdp.getStates():
         print state
         for action in mdp.getActions(state):
             qvalue = 0.0
+            qreward = 0.0
             for (s, p) in mdp.getT(state, action):
                 qvalue += p * v[s]
+                qreward += p * mdp.getReward(s)
             lastPointOfOrigin = -0.5
             for (s, p) in mdp.getT(state, action):
                 bestAction = None
@@ -50,8 +52,8 @@ def outputTable(mdp, v):
                 lastPointOfOrigin += p
                 print "HERE"
                 print state
-                f.write('%s,%s,%f,%s,%s,%f,%f,%f\n' % (mdp.getStateString(state), str(action), qvalue, 
-                                                       mdp.getStateString(s), bestAction, v[s], 
+                f.write('%s,%s,%f,%f,%s,%s,%f,%f,%f,%f\n' % (mdp.getStateString(state), str(action), qvalue, qreward,
+                                                       mdp.getStateString(s), bestAction, v[s], mdp.getReward(s),
                                                        nextPointOfOrigin, p))
 
 
