@@ -445,8 +445,11 @@ function update(source, stuffToCollapse, isFilter) {
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6)
-      .style("fill", "white");
+      //.style("fill-opacity", 1e-6)
+      //.style("fill", "white")
+      .style("font-weight", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "bold" : ""; })
+      .style("fill", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "gold" : "white"; })
+      .style("fill-opacity", 1);
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
@@ -470,7 +473,7 @@ function update(source, stuffToCollapse, isFilter) {
 
   nodeUpdate.select("text")
       .style("font-weight", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "bold" : ""; })
-      .style("fill", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "gold" : "white"; })
+      .style("fill", function (d) {console.log("HASDJ");console.log(d); console.log(d.name); return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "gold" : "white"; })
       .style("fill-opacity", 1);
 
   // Transition exiting nodes to the parent's new position.

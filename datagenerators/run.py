@@ -122,19 +122,21 @@ def outputToJSON(mdp, state, action, prob, v,
         json['name'] = mdp.getStateString(state)
         json['value'] = "%f" % v[state]
         json['incomingProbability'] = "%f" % prob
+        #if depth > 0:
+        actions = []
+        bestAction = None
+        bestActionQValue = -1290310231
+        for a in mdp.getActions(state):
+            qvalue = getQValue(mdp, state, a, v)
+            if  qvalue > bestActionQValue:
+                bestAction = a
+                bestActionQValue = qvalue
         if depth > 0:
-            actions = []
-            bestAction = None
-            bestActionQValue = -1290310231
             for a in mdp.getActions(state):
                 actions.append(outputToJSON(mdp, state, a, 0, 
                                             v, policy, depth, False, 0))
-                qvalue = getQValue(mdp, state, a, v)
-                if  qvalue > bestActionQValue:
-                    bestAction = a
-                    bestActionQValue = qvalue
-            json['policy'] = bestAction
             json['children'] = actions
+        json['policy'] = bestAction
         json['type'] = "state"
         json['poo'] = "%f" % pointOfOrigin
     else:
