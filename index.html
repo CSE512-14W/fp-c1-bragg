@@ -633,13 +633,13 @@ function getChildren(state, action) {
 // Toggle children on click.
 function click(d) {
   if (!d.children && !d._children) {
-    d3.csv("data/gridworldtable", function(error, tabledata) {
+    //d3.csv("data/gridworldtable", function(error, tabledata) {
       console.log("HERE TABLE");
       d.children = makeChildrenNodes(d, tabledata);
       console.log(d.children);
       console.log("THERE");
       update(d);
-    });
+   // });
   }
   else if (d.children) {
     d._children = d.children;
