@@ -72,7 +72,7 @@ function unhighlightState(state) {
 
 function highlightAction(state, action, states) {
     rects = document.querySelectorAll('rect.rep')
-    console.log(states);
+    // console.log(states);
     for (k = 0; k < rects.length; k++) {
 	for (j = 0; j < states.length; j++) {
 	    nextState = states[j];
@@ -103,7 +103,7 @@ function unhighlightAction(state, action, states) {
 	    }
 	}
 	if (rects[k].getAttribute("name") == state) {
-	    console.log(rects[k].style._fill);
+	    // console.log(rects[k].style._fill);
 	    if (rects[k].style._fill) {
 		rects[k].style.fill = rects[k].style._fill;
 		rects[k].style._fill = null;

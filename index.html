@@ -165,7 +165,7 @@ var valRange =  {min: Infinity, max: -Infinity};
 var diagonal = d3.svg.diagonal()
     .source( function(d) {
              if (d.target.type == "state") {
-               console.log(d.target.poo);
+               // console.log(d.target.poo);
                if (d.target.poo < 0) {
                  return {x: d.source.x - radius(parseFloat(d.target.poo) * -1), y: d.source.y};
                } else {
@@ -203,6 +203,15 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
   root.x0 = height / 2 - 500;
   root.y0 = 0;
 
+  // Find value range
+  for (j = 0; j < tabledata.length; j++) {
+    row = tabledata[j];
+    v = parseFloat(row['value']);
+    valRange.min = (v < valRange.min) ? v : valRange.min;
+    valRange.max = (v > valRange.max) ? v : valRange.max;
+  }
+       
+
   function collapse(d) {
     if (d.children) {
       d._children = d.children;
@@ -211,20 +220,20 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
     }
   }
   
-  // Parse and find value range
+  // Parse
   function parse(d) {
     d.value = parseFloat(d.value);
     d.prob = parseFloat(d.incomingProbability);
-		if (d.type == 'state') {
-			v = d.value;
-			valRange.min = (v < valRange.min) ? v : valRange.min;
-			valRange.max = (v > valRange.max) ? v : valRange.max;
-		} else { 
-			v = d.qvalue;
-			valRange.min = (v < valRange.min) ? v : valRange.min;
-			valRange.max = (v > valRange.max) ? v : valRange.max;
-
-		};
+    // if (d.type == 'state') {
+    //   v = d.value;
+    //   valRange.min = (v < valRange.min) ? v : valRange.min;
+    //   valRange.max = (v > valRange.max) ? v : valRange.max;
+    // } else { 
+    //   v = d.qvalue;
+    //   valRange.min = (v < valRange.min) ? v : valRange.min;
+    //   valRange.max = (v > valRange.max) ? v : valRange.max;
+    // 
+    // };
     
     
     if (d.children) {
@@ -278,8 +287,8 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
     .orientation("vertical").step(0.01)
     .on("slide", function(evt, value) {
       d3.select("#slidertext").text((1.0 - value).toFixed(2));
-      console.log("HUH");
-      console.log(d3.selectAll("g.node"));
+      // console.log("HUH");
+      // console.log(d3.selectAll("g.node"));
       filter(root, 1.0 - value);
       sizeOfWhereToCollapse = 0;
       for (key in whereToCollapse) {
@@ -301,8 +310,8 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
 var whereToCollapse = {};
 
 function filter(source, value) {
-  console.log("HERE");
-  console.log(source);
+  // console.log("HERE");
+  // console.log(source);
   if (source.type == "action") { 
     if (source.children) {
       source.children.forEach(function (e) {filter(e, value);});
@@ -311,11 +320,11 @@ function filter(source, value) {
     if (source.children) {
 	if (parseFloat(source.incomingProbability) < value && parseFloat(source.incomingProbability) > 0) {
             stuffToCollapse = {}
-            source.children.forEach(function(e) {console.log("THERE"); console.log(e); whereToCollapse[e.id] = source; stuffToCollapse[e.id] = true; filterAll(e, source);});
+            source.children.forEach(function(e) {whereToCollapse[e.id] = source; stuffToCollapse[e.id] = true; filterAll(e, source);});
             source._children = source.children;
             source.children = null;
-            console.log("UPDATING");
-            console.log(source);
+            // console.log("UPDATING");
+            // console.log(source);
             //update(source, stuffToCollapse,  source);
           
        } else {
@@ -327,8 +336,8 @@ function filter(source, value) {
 }
 
 function filterAll(source, collapseDestination) {
-  console.log("FILTERING ALL");
-  console.log(source);
+  // console.log("FILTERING ALL");
+  // console.log(source);
   if (source.children) {
     source._children = source.children;
     source.children = null;
@@ -350,8 +359,8 @@ function update(source, stuffToCollapse, isFilter) {
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
 
-  console.log("UPDATING");
-  console.log(nodes);
+  // console.log("UPDATING");
+  // console.log(nodes);
 
   // Normalize for fixed-depth. Changed to alternate depths depending on action / state nodes.
   // nodes.forEach(function(d) { d.y = d.depth * 180; });
@@ -476,7 +485,7 @@ function update(source, stuffToCollapse, isFilter) {
 
   nodeUpdate.select("text")
       .style("font-weight", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "bold" : ""; })
-      .style("fill", function (d) {console.log("HASDJ");console.log(d); console.log(d.name); return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "gold" : "white"; })
+      .style("fill", function (d) {return (d.type == "action" && d.parent.type == "state" && d.parent.policy == d.name) ? "gold" : "white"; })
       .style("fill-opacity", 1);
 
   // Transition exiting nodes to the parent's new position.
@@ -484,9 +493,9 @@ function update(source, stuffToCollapse, isFilter) {
       .duration(duration)
       .attr("transform", function(d) { 
          if (isFilter) {
-           console.log("MERP");
-           console.log(d);
-           console.log(whereToCollapse);
+           // console.log("MERP");
+           // console.log(d);
+           // console.log(whereToCollapse);
            return "translate(" + whereToCollapse[d.id].y + "," + whereToCollapse[d.id].x + ")"; 
          } else {
          return "translate(" + source.y + "," + source.x + ")";
@@ -524,9 +533,9 @@ function update(source, stuffToCollapse, isFilter) {
         else if (d.target.children){
           highlightAction(d.source.name, d.target.name, d.target.children.map(function (e) {return e.name; }));
         }  else {
-          console.log("HIGHLIGHTING");
-          console.log(d);
-          console.log(getChildren(d.source.name, d.target.name));
+          // console.log("HIGHLIGHTING");
+          // console.log(d);
+          // console.log(getChildren(d.source.name, d.target.name));
           highlightAction(d.source.name, d.target.name, getChildren(d.source.name, d.target.name));
         }
         
@@ -593,13 +602,13 @@ function update(source, stuffToCollapse, isFilter) {
       .duration(duration)
       .attr("d", function(d) {
         var o = {x: source.x, y: source.y};
-        console.log("transitioning link");
-        console.log(d);
-        console.log(o);
-        console.log(isFilter);
+        // console.log("transitioning link");
+        // console.log(d);
+        // console.log(o);
+        // console.log(isFilter);
 	if (isFilter) {
-          console.log("IS FILTER");
-          console.log(stuffToCollapse);
+          // console.log("IS FILTER");
+          // console.log(stuffToCollapse);
           //if (d.target.id in stuffToCollapse) {
 	    return diagonal({source: whereToCollapse[d.target.id], target: whereToCollapse[d.target.id]});
           //}
@@ -621,12 +630,12 @@ function getChildren(state, action) {
      for (j = 0; j < tabledata.length; j++) {
 	row = tabledata[j];
 	if (row['state1'] == state && row['action'] == action) {
-          console.log("STATE!");
-          console.log(row['state2']);
+          // console.log("STATE!");
+          // console.log(row['state2']);
           states.push(row['state2']);
       }}
-      console.log("HUHH?");
-      console.log(states);
+      // console.log("HUHH?");
+      // console.log(states);
       return states;
 }
 
@@ -634,10 +643,10 @@ function getChildren(state, action) {
 function click(d) {
   if (!d.children && !d._children) {
     //d3.csv("data/gridworldtable", function(error, tabledata) {
-      console.log("HERE TABLE");
+      // console.log("HERE TABLE");
       d.children = makeChildrenNodes(d, tabledata);
-      console.log(d.children);
-      console.log("THERE");
+      // console.log(d.children);
+      // console.log("THERE");
       update(d);
    // });
   }
@@ -648,14 +657,15 @@ function click(d) {
     d.children = d._children;
     d._children = null;
   }
-  console.log("CALL TO UPDATE");
+  // console.log("CALL TO UPDATE");
+  // console.log(d)
   update(d);
 }
 
 
 function makeChildrenNodes(node, data) {
-  console.log("MAKING CHILDREN");
-  console.log(node);
+  // console.log("MAKING CHILDREN");
+  // console.log(node);
   if (node.type == 'state') {
     children = []
     actions = {}
@@ -676,7 +686,7 @@ function makeChildrenNodes(node, data) {
     for (j = 0; j < data.length; j++) {
      row = data[j];
       if (row['action'] == node.name && row['state1'] == node.parent.name) {
-	newNode = {};
+      	newNode = {};
         newNode['name'] = row['state2'];
         newNode['type'] = 'state';
         newNode['value'] = parseFloat(row['value']);
@@ -684,14 +694,14 @@ function makeChildrenNodes(node, data) {
         newNode['prob'] = parseFloat(row['incomingProbability']);
         newNode['incomingProbability'] = parseFloat(row['incomingProbability']);
         newNode['poo'] = row['poo'];
-	newNode['policy'] = row['bestAction'];
+      	newNode['policy'] = row['bestAction'];
         children.push(newNode);
       }
     }
     
   }
-  console.log("HERE ARE THE CHILDREN");
-  console.log(children);
+  // console.log("HERE ARE THE CHILDREN");
+  // console.log(children);
   return children; 
 }
 
