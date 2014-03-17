@@ -57,7 +57,7 @@ class GridWorld:
 
     def getReward(self, state):
         (x, y) = state
-        if (x, y) == (self.x - 1, self.y - 1):
+        if (x, y) == (self.x - 1,  0):
             return self.reward
         if y == 0 and x > 0 and x < self.x - 1:
             return self.firepitreward
@@ -97,7 +97,8 @@ class GridWorld:
     def getT(self, state, action):
         nextStates = {}
 
-        if state == (self.x-1, self.y-1):
+        #print state
+        if state == (self.x-1, 0):
             nextStates[(-1,-1)] = 1.0
         elif action == 'N':
             nextStates[self.getNextState(state, 'N')] = 0.0

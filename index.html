@@ -193,8 +193,12 @@ var svg = d3.select("#container").append("svg")
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
+tabledata = null;
+
 // d3.json("data/gridworld.json", function(error, flare) {
-d3.json("data/gridworlddepth5.json", function(error, data) {
+d3.json("data/gridworlddepth2.json", function(error, data) {
+d3.csv("data/gridworldtable", function(error, thetabledata) {
+  tabledata = thetabledata;
   root = data;
   root.x0 = height / 2 - 500;
   root.y0 = 0;
@@ -215,6 +219,11 @@ d3.json("data/gridworlddepth5.json", function(error, data) {
 			v = d.value;
 			valRange.min = (v < valRange.min) ? v : valRange.min;
 			valRange.max = (v > valRange.max) ? v : valRange.max;
+		} else { 
+			v = d.qvalue;
+			valRange.min = (v < valRange.min) ? v : valRange.min;
+			valRange.max = (v > valRange.max) ? v : valRange.max;
+
 		};
     
     
@@ -285,7 +294,7 @@ d3.json("data/gridworlddepth5.json", function(error, data) {
       whereToCollapse = {};
       }));				  
       
-});
+});});
 
 
 //map from node id to collapse destination
@@ -335,10 +344,14 @@ d3.select(self.frameElement).style("height", "800px");
 
 function update(source, stuffToCollapse, isFilter) {
 
+  
 						  
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
+
+  console.log("UPDATING");
+  console.log(nodes);
 
   // Normalize for fixed-depth. Changed to alternate depths depending on action / state nodes.
   // nodes.forEach(function(d) { d.y = d.depth * 180; });
@@ -373,8 +386,10 @@ function update(source, stuffToCollapse, isFilter) {
           if (d._children) {
             highlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
           }
-          else {
+          else if (d.children) {
             highlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));
+          } else {
+            highlightAction(d.parent.name, d.name, getChildren(d.parent.name, d.name));
           }
           var txt = "Q = " + d.qvalue.toFixed(1); 
         }
@@ -399,9 +414,11 @@ function update(source, stuffToCollapse, isFilter) {
             unhighlightAction(d.parent.name, d.name, d._children.map(function (e) {return e.name; }));
 
           }
-          else {
-            unhighlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; }));} 
-          }
+          else if (d.children) {
+            unhighlightAction(d.parent.name, d.name, d.children.map(function (e) {return e.name; })); 
+          } else {
+            unhighlightAction(d.parent.name, d.name, getChildren(d.parent.name, d.name));}}
+				  
 
       }) 
       .on("click", click);
@@ -496,11 +513,16 @@ function update(source, stuffToCollapse, isFilter) {
       });
       if (d.target.type == "action")  {
         if (d.target._children) {
-          highlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
+          highlightAction(d.source.name, d.target.name, d.target._children.map(function (e) {return e.name; }));
         }
-        else {
-          highlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));
-        }  
+        else if (d.target.children){
+          highlightAction(d.source.name, d.target.name, d.target.children.map(function (e) {return e.name; }));
+        }  else {
+          console.log("HIGHLIGHTING");
+          console.log(d);
+          console.log(getChildren(d.source.name, d.target.name));
+          highlightAction(d.source.name, d.target.name, getChildren(d.source.name, d.target.name));
+        }
         
         div.transition()
           .duration(0)
@@ -531,11 +553,13 @@ function update(source, stuffToCollapse, isFilter) {
 
       if (d.target.type == "action")  {
         if (d.target._children) {
-          unhighlightAction(d.source.name, d.name, d.target._children.map(function (e) {return e.name; }));
+          unhighlightAction(d.source.name, d.target.name, d.target._children.map(function (e) {return e.name; }));
         }
-        else {
-          unhighlightAction(d.source.name, d.name, d.target.children.map(function (e) {return e.name; }));
-        } 
+        else if (d.target.children){
+          unhighlightAction(d.source.name, d.target.name, d.target.children.map(function (e) {return e.name; }));
+        } else {
+          unhighlightAction(d.source.name, d.target.name, getChildren(d.source.name,d.target.name));
+        }
       }
       else {
         unhighlightOneAction(d.source.parent.name, d.name, d.target.name);
@@ -586,17 +610,84 @@ function update(source, stuffToCollapse, isFilter) {
   });
 }
 
+function getChildren(state, action) {
+     states = [];		  
+     for (j = 0; j < tabledata.length; j++) {
+	row = tabledata[j];
+	if (row['state1'] == state && row['action'] == action) {
+          console.log("STATE!");
+          console.log(row['state2']);
+          states.push(row['state2']);
+      }}
+      console.log("HUHH?");
+      console.log(states);
+      return states;
+}
+
 // Toggle children on click.
 function click(d) {
-  if (d.children) {
+  if (!d.children && !d._children) {
+    d3.csv("data/gridworldtable", function(error, tabledata) {
+      console.log("HERE TABLE");
+      d.children = makeChildrenNodes(d, tabledata);
+      console.log(d.children);
+      console.log("THERE");
+      update(d);
+    });
+  }
+  else if (d.children) {
     d._children = d.children;
     d.children = null;
   } else {
     d.children = d._children;
     d._children = null;
   }
+  console.log("CALL TO UPDATE");
   update(d);
 }
+
+
+function makeChildrenNodes(node, data) {
+  console.log("MAKING CHILDREN");
+  console.log(node);
+  if (node.type == 'state') {
+    children = []
+    actions = {}
+    for (j = 0; j < data.length; j++) {
+      row = data[j];
+      if (row['state1'] == node.name && !(row['action'] in actions)) {
+        newNode = {};
+        newNode['name'] = row['action'];
+        actions[row['action']] = true
+        newNode['type'] = 'action';
+        //newNode['value'] = row['value'];
+        newNode['qvalue'] = parseFloat(row['qvalue']);
+        children.push(newNode);
+      }
+    } 
+  } else {
+    children = []
+    for (j = 0; j < data.length; j++) {
+     row = data[j];
+      if (row['action'] == node.name && row['state1'] == node.parent.name) {
+	newNode = {};
+        newNode['name'] = row['state2'];
+        newNode['type'] = 'state';
+        newNode['value'] = parseFloat(row['value']);
+        //newNode['qvalue'] = row['qvalue'];
+        newNode['prob'] = parseFloat(row['incomingProbability']);
+        newNode['poo'] = row['poo'];
+	newNode['policy'] = row['bestAction'];
+        children.push(newNode);
+      }
+    }
+    
+  }
+  console.log("HERE ARE THE CHILDREN");
+  console.log(children);
+  return children; 
+}
+
 
 function highlightLinks(source) {
   
