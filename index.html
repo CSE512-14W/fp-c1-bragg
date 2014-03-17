@@ -212,18 +212,25 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
   }
        
 
-  function collapse(d) {
-    if (d.children) {
-      d._children = d.children;
-      d._children.forEach(collapse);
-      d.children = null;
-    }
+  // function collapse(d) {
+  //   if (d.children) {
+  //     d._children = d.children;
+  //     d._children.forEach(collapse);
+  //     d.children = null;
+  //   }
+  // }
+
+  function initRoot(d) {
+    d.value = parseFloat(d.value);
+    d.reward = 0;
+    d.children = makeChildrenNodes(d, tabledata); // expand actions for first node
   }
+
   
   // Parse
-  function parse(d) {
-    d.value = parseFloat(d.value);
-    d.prob = parseFloat(d.incomingProbability);
+  // function parse(d) {
+  //   d.value = parseFloat(d.value);
+  //   d.prob = parseFloat(d.incomingProbability);
     // if (d.type == 'state') {
     //   v = d.value;
     //   valRange.min = (v < valRange.min) ? v : valRange.min;
@@ -236,12 +243,13 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
     // };
     
     
-    if (d.children) {
-      d.children.forEach(parse);
-    }
-  }
+  //   if (d.children) {
+  //     d.children.forEach(parse);
+  //   }
+  // }
   
-  parse(root);
+  // parse(root);
+
   color = d3.scale.quantize().domain([valRange.min, valRange.max])
               .range(colorbrewer.RdYlGn[11]);
 
@@ -256,7 +264,8 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
       .range([0,20]);
 
   // Display tree
-  root.children.forEach(collapse);
+  // root.children.forEach(collapse);
+    initRoot(root);
   update(root);
   
 
