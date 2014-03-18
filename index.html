@@ -128,6 +128,7 @@ li.key {
   <div class="rep"></div>
   <div id="legends">
     <button id="colorToggle">Toggle color</button>
+    <button id="scaleToggle">Toggle scale</button>
   </div>
   
 </div>
@@ -148,17 +149,62 @@ var aspect = 960 / 600;
     width = 960 - margin.right - margin.left,
     height = width / aspect;
     
+function updateColors(rewardSetting) {
+    d3.selectAll('path.link').style("stroke", function (d) {
+           return color(colorValue(d.target, rewardSetting)) });
+    d3.selectAll('circle').style("fill", function (d) {
+           return color(colorValue(d, rewardSetting)) });        
+}
+
+function setColorScale(colorSetting, rewardSetting) {
+  if (rewardSetting == 'value' && colorSetting == 'quantile') {
+    color = d3.scale.quantile().domain($.map(Object.keys(valList), function(x) { return parseFloat(x) })).range(colorbrewer.RdYlGn[11]);
+  }
+  else if (rewardSetting == 'acc' && colorSetting == 'quantile') {
+    color = d3.scale.quantile().domain($.map(Object.keys(rewardList), function(x) { return parseFloat(x) })).range(colorbrewer.RdYlGn[11]);
+  }
+  else if (rewardSetting == 'value' && colorSetting == 'quantize') {
+    color = d3.scale.quantize().domain([valRange.min, valRange.max])
+                 .range(colorbrewer.RdYlGn[11]);
+  }
+  else {
+    color = d3.scale.quantize().domain([rewardRange.min, rewardRange.max])
+                .range(colorbrewer.RdYlGn[11]);
+  }
+  // return color;
+  
+}
+
+function updateColorAndLegend(colorSetting, rewardSetting) {
+  setColorScale(colorSetting, rewardSetting);
+  updateColors(rewardSetting);
+  
+  d3.selectAll("#legends li.key").text(function(d) {
+        var r = color.invertExtent(d);
+        return r[0].toFixed(0);
+    });
+  
+  $("#legend-val .header").text(legendHeader(colorSetting, rewardSetting));
+}
+
+function legendHeader(colorSetting, rewardSetting) {
+  t1 = rewardSetting == 'value' ?  'Expected utility value' : 'Accumulated reward';
+  t2 = colorSetting == 'quantile' ? '(quantile scale)' : '(linear scale)';
+  return t1 + ' ' + t2;
+}
+
 $(document).ready(function () {
   resizeSVG();
   draw(width, height);
   $("#colorToggle").click(function() {
     rewardSetting = rewardSetting == 'acc' ? 'value' : 'acc';
-    console.log(rewardSetting);
-    d3.selectAll('path.link').style("stroke", function (d) {
-           return color(colorValue(d.target, rewardSetting)) });
-    d3.selectAll('circle').style("fill", function (d) {
-           return color(colorValue(d, rewardSetting)) });        
-    update(root);
+    updateColorAndLegend(colorSetting, rewardSetting);
+  });
+  
+  $("#scaleToggle").click(function() {
+    colorSetting = colorSetting == 'quantile' ? 'quantize' : 'quantile';
+    updateColorAndLegend(colorSetting, rewardSetting);
+
   });
 });
 
@@ -169,6 +215,7 @@ var i = 0,
     radius;
 
 rewardSetting = 'value';
+colorSetting = 'quantile';
 
 var tree = d3.layout.tree()
     .size([height, width]);
@@ -176,7 +223,10 @@ var tree = d3.layout.tree()
 // Hardcode based on depth for now (scale based on maxdepth later?)
 var treewidths = {action: 40, state: 180};
 
-var valRange =  {min: Infinity, max: -Infinity};
+valRange =  {min: Infinity, max: -Infinity};
+rewardRange = {min: Infinity, max: -Infinity};
+valList = {};
+rewardList = {};
 
 var diagonal = d3.svg.diagonal()
     .source( function(d) {
@@ -225,6 +275,7 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
     v = parseFloat(row['value']);
     valRange.min = (v < valRange.min) ? v : valRange.min;
     valRange.max = (v > valRange.max) ? v : valRange.max;
+    valList[v] = true;
   }
        
 
@@ -241,6 +292,10 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
     d.reward = 0;
     d.type = "state";
     d.children = makeChildrenNodes(d, tabledata); // expand actions for first node
+    rewardRange.min = d.reward;
+    rewardRange.max = d.reward;
+
+    rewardList[d.reward] = true;
   }
 
   
@@ -267,9 +322,18 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
   
   // parse(root);
 
-  color = d3.scale.quantize().domain([valRange.min, valRange.max])
-              .range(colorbrewer.RdYlGn[11]);
+//  color = d3.scale.quantize().domain([valRange.min, valRange.max])
+//              .range(colorbrewer.RdYlGn[11]);
+  // color = d3.scale.quantile().domain($.map(Object.keys(valList), function(x) { return parseFloat(x) }))
+ //              .range(colorbrewer.RdYlGn[11]);
+  // BUG: check the color scale
+  // console.log(color);
+  color = null;
+  setColorScale(colorSetting, rewardSetting);
+  // color = d3.scale.quantile().domain($.map(Object.keys(valList), function(x) { return parseFloat(x) })).range(colorbrewer.RdYlGn[11]);
+  // console.log(color);
 
+// 
 
 
   //radius = d3.scale.sqrt()
@@ -285,14 +349,13 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
   initRoot(root);
   update(root);
   
-
   // Draw iegend
   var legend = d3.select("#legends").append('div')
                 .attr('id', 'legend-val');
   
   legend.append('span')
             .attr('class', 'header')
-            .text('Expected utility value');
+            .text(legendHeader(colorSetting, rewardSetting));
   legend.append('ul')
       .attr('class', 'list-inline');
 
@@ -402,7 +465,7 @@ function update(source, stuffToCollapse, isFilter) {
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
 
-  console.log("UPDATING");
+  // console.log("UPDATING");
   // console.log(nodes);
 
   // Normalize for fixed-depth. Changed to alternate depths depending on action / state nodes.
@@ -724,6 +787,13 @@ function makeChildrenNodes(node, data) {
         newNode['qreward_inc'] = parseFloat(row['qreward']);
         newNode['qreward'] = node['reward'] + parseFloat(row['qreward']);
         children.push(newNode);
+
+        // update rewardRange
+        rewardRange.min = Math.min(rewardRange.min, newNode['qreward']);
+        rewardRange.max = Math.max(rewardRange.max, newNode['qreward']);
+
+        // BUG: change to dictionary?
+        rewardList[newNode['qreward']] = true;
       }
     } 
   } else {
@@ -743,12 +813,22 @@ function makeChildrenNodes(node, data) {
         newNode['poo'] = row['poo'];
       	newNode['policy'] = row['bestAction'];
         children.push(newNode);
+
+        // update rewardRange
+        rewardRange.min = Math.min(rewardRange.min, newNode['reward']);
+        rewardRange.max = Math.max(rewardRange.max, newNode['reward']);
+
+        // BUG: change to dictionary?
+        rewardList[newNode['reward']] = true;
       }
     }
     
   }
   // console.log("HERE ARE THE CHILDREN");
   // console.log(children);
+  
+  updateColorAndLegend(colorSetting, rewardSetting);
+  
   return children; 
 }
 
