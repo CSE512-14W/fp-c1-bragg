@@ -72,6 +72,10 @@ div.tooltip {
   color: white;
 }
 
+#legends button {
+  margin-left: 50px;
+}
+
 #sliderContainer {
   position: absolute;
   right: 75px;
@@ -122,8 +126,10 @@ li.key {
 <body>
 <div id="container">
   <div class="rep"></div>
-
-  <div id="legends"></div>
+  <div id="legends">
+    <button id="colorToggle">Toggle color</button>
+  </div>
+  
 </div>
   <div id="sliderContainer">
     <div>Collapse probability under: <span id="slidertext">0.0</span></div>
@@ -145,6 +151,15 @@ var aspect = 960 / 600;
 $(document).ready(function () {
   resizeSVG();
   draw(width, height);
+  $("#colorToggle").click(function() {
+    rewardSetting = rewardSetting == 'acc' ? 'value' : 'acc';
+    console.log(rewardSetting);
+    d3.selectAll('path.link').style("stroke", function (d) {
+           return color(colorValue(d.target, rewardSetting)) });
+    d3.selectAll('circle').style("fill", function (d) {
+           return color(colorValue(d, rewardSetting)) });        
+    update(root);
+  });
 });
 
 var i = 0,
@@ -153,7 +168,7 @@ var i = 0,
     root,
     radius;
 
-rewardSetting = 'acc';
+rewardSetting = 'value';
 
 var tree = d3.layout.tree()
     .size([height, width]);
@@ -224,6 +239,7 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
   function initRoot(d) {
     d.value = parseFloat(d.value);
     d.reward = 0;
+    d.type = "state";
     d.children = makeChildrenNodes(d, tabledata); // expand actions for first node
   }
 
@@ -315,6 +331,8 @@ d3.csv("data/gridworldtable", function(error, thetabledata) {
       
 });});
 
+
+
 function colorValue(node, rewardSetting) {
   if (node.type == "action" && rewardSetting != "acc") {
     return node.qvalue;
@@ -384,7 +402,7 @@ function update(source, stuffToCollapse, isFilter) {
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
 
-  // console.log("UPDATING");
+  console.log("UPDATING");
   // console.log(nodes);
 
   // Normalize for fixed-depth. Changed to alternate depths depending on action / state nodes.
@@ -466,8 +484,8 @@ function update(source, stuffToCollapse, isFilter) {
       .style("stroke-width", 3)
       // .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
       //.style("fill", function(d) { return (d.type == "action") ? "lightsteelblue" : color(d.value); })
-    .style("fill", function(d) { return color(colorValue(d), rewardSetting); })
-       .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
+      .style("fill", function(d) { return color(colorValue(d), rewardSetting); })
+      .style("visibility", function(d) {return (d.type == "action") ?  "hidden" : "visible";})
        //.style("display", function(d) {return (d.type == "action") ?  "none" : "inline";})
       .style("fill-opacity", function(d) { return (d.type == "action") ? 1.0 : 1.0; })
     // .append("svg:title")
@@ -543,7 +561,7 @@ function update(source, stuffToCollapse, isFilter) {
         var o = {x: source.x0, y: source.y0};
         return diagonal({source: o, target: o});
       })
-	  .style("stroke", function(d) { return color(colorValue(d.target, rewardSetting)); })
+	  .style("stroke", function(d) {  return color(colorValue(d.target, rewardSetting)); })
 	  .style("stroke-width", function(d) { return d.target.type == "action" ? radius(1.0) : radius(d.target.prob); })
 	  .style("stroke-opacity", function(d) {return d.target.type == "action" ? 1.0 : 1.0;})
     .on("mouseover", function (d) {
