@@ -487,8 +487,8 @@ function update(source, stuffToCollapse, isFilter) {
           d3.selectAll("circle." + d.name) 
 					      .style("stroke", function(d) {
                     d._stroke = d.stroke; 
-                    return "black";})
-					      .style("stroke-width", 10);
+                    return "blue";})
+					      .style("stroke-width", 3);
                 
           div.transition()
             .duration(0)
@@ -841,8 +841,8 @@ function highlightNodes(state) {
 				  .style("stroke", 
 				  function(d) {
 				  d._stroke = d.stroke; 
-				  return "black";})
-				  .style("stroke-width", 10);
+				  return "blue";})
+				  .style("stroke-width", 3);
 }
 
 function unhighlightNodes(state) {
